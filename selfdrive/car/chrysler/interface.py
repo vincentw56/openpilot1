@@ -65,7 +65,7 @@ class CarInterface(CarInterfaceBase):
       ret.minSteerSpeed = 0.5
       ret.minEnableSpeed = 14.6
       # Older EPS FW allow steer to zero
-      if any(fw.ecu == 'eps' and (fw.fwVersion[:4] <= b"6831" for fw in car_fw) and (fw.fwVersion[:4] <= b"6827" for fw in car_fw)):
+      if any(fw.ecu == 'eps' and fw.fwVersion[:4] <= b"6831" and fw.fwVersion[:4] <= b"6827" for fw in car_fw):
         ret.minEnableSpeed = 0.
 
     elif candidate == CAR.RAM_HD:
