@@ -65,7 +65,7 @@ class CarInterface(CarInterfaceBase):
       ret.minSteerSpeed = 0.5
       ret.minEnableSpeed = 14.6
       # Older EPS FW allow steer to zero
-      if any(fw.ecu == 'eps' and fw.fwVersion[:4] <= b"6831" and fw.fwVersion[:4] <= b"6827" for fw in car_fw):
+      if any(fw.ecu == 'eps' and (fw.fwVersion[:4] <= b"6831" or fw.fwVersion[:4] <= b"6827") for fw in car_fw):
         ret.minEnableSpeed = 0.
 
     elif candidate == CAR.RAM_HD:
@@ -94,13 +94,19 @@ class CarInterface(CarInterfaceBase):
     # events
     events = self.create_common_events(ret, extra_gears=[car.CarState.GearShifter.low])
 
-    # Low speed steer alert hysteresis logic
-    if self.CP.minSteerSpeed > 0. and ret.vEgo < (self.CP.minSteerSpeed + 0.5):
-      self.low_speed_alert = True
-    elif ret.vEgo > (self.CP.minSteerSpeed + 1.):
-      self.low_speed_alert = False
-    if self.low_speed_alert:
-      events.add(car.CarEvent.EventName.belowSteerSpeed)
+    if self.CP.carFingerprint in RAM_DT:
+      if self.CS.out.vEgo >= self.CP.minEnableSpeed:
+        self.low_speed_alert = False
+      if (self.CP.minEnableSpeed >= 14.5) and (self.CS.out.gearShifter != car.CarState.GearShifter.drive) :
+        self.low_speed_alert = True
+
+    else:# Low speed steer alert hysteresis logic
+      if self.CP.minSteerSpeed > 0. and ret.vEgo < (self.CP.minSteerSpeed + 0.5):
+        self.low_speed_alert = True
+      elif ret.vEgo > (self.CP.minSteerSpeed + 1.):
+        self.low_speed_alert = False
+      if self.low_speed_alert:
+        events.add(car.CarEvent.EventName.belowSteerSpeed)
 
     ret.events = events.to_msg()
 
