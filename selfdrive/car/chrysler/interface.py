@@ -79,9 +79,9 @@ class CarInterface(CarInterfaceBase):
     else:
       raise ValueError(f"Unsupported car: {candidate}")
 
-    if ret.flags & ChryslerFlags.HIGHER_MIN_STEERING_SPEED:
+    #if ret.flags & ChryslerFlags.HIGHER_MIN_STEERING_SPEED:
       # TODO: allow these cars to steer down to 13 m/s if already engaged.
-      ret.minSteerSpeed = 17.5  # m/s 17 on the way up, 13 on the way down once engaged.
+      # ret.minSteerSpeed = 17.5  # m/s 17 on the way up, 13 on the way down once engaged.
 
     ret.centerToFront = ret.wheelbase * 0.44
     ret.enableBsm = 720 in fingerprint[0]
